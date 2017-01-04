@@ -1,0 +1,1 @@
+JENKINS_DATA_PATH=place host directory here

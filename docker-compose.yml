@@ -1,0 +1,36 @@
+# https://github.com/SvenDowideit/docs-automation/blob/master/jenkins/setup-docker-and-start-jenkins.sh - configure
+# socat TCP-LISTEN:2376,range=0.0.0.0/0,reuseaddr,fork UNIX:/var/run/docker.sock
+version: '2'
+services:
+  traefik:
+    image: traefik
+    ports:
+     - "80:80"
+     - "8080:8080"
+    volumes: 
+     - ./traefik.toml:/etc/traefik/traefik.toml
+     - /var/run/docker.sock:/var/run/docker.sock
+
+  jenkins:
+    image: rig/jenkins
+    container_name: jenkins
+    privileged: true
+    labels:
+     - "traefik.port=8080"
+    volumes:
+     - ${JENKINS_DATA_PATH}:/var/jenkins_home
+     - /var/run/docker.sock:/var/run/docker.sock
+
+  nexus:
+    image: sonatype/nexus3
+    container_name: nexus
+    volumes:
+     - nexus-data:/nexus-data
+
+  sonar:
+    image: sonarqube:alpine
+    container_name: sonar
+
+
+volumes:
+  nexus-data: {}
