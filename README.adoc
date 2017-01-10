@@ -24,7 +24,7 @@ Dockerized version of Jenkins-based CD pipeline.
 1. disable global security or change admin password
 1. set global vars (`DOCKER_HOST=tcp://yourhost:2376` and `DOCKER_SERVER=yourhost`) to match exposed tcp socket on the host
 1. add docker cloud provider (use `DOCKER_HOST` as URL)
-1. add template for node/jenkins (`rig/node_slave` image + priveleged flag)
+1. add template for node/jenkins (`rig/node_slave` image + privileged flag)
 
 == Example job to build-test-deploy web application
 [source,groovy]
