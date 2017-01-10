@@ -1,0 +1,5 @@
+kubernetes:0.10
+docker-workflow:1.9.1
+workflow-aggregator:2.4
+credentials-binding:1.10
+git:3.0.1
