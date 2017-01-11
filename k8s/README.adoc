@@ -15,6 +15,12 @@
 echo "`minikube ip`  traefik.kube.local jenkins.kube.local sample.kube.local" > /etc/hosts`
 ----
 
+== KOPS installation on EC2
+
+*Important*: there should be NS delegation record in parent Route53 record (see https://github.com/kubernetes/kops/issues/859#issuecomment-261697614)
+In case of new region you may need to create a new S3 bucket for kops configuration (see tf/prereqs.tf)
+Use `kops.sh` as a basis
+
 == Principles
 
 * We're using Traefik as k8s ingress controller
@@ -46,7 +52,7 @@ podTemplate(label: 'nodeapp',
                 git(url: 'file:///var/gitrepo')
             }
             stage('Build') {
-                sh 'cd ./src/test/apps/node-docker && ls -l && npm install && npm run dist'
+                sh 'cd ./src/test/apps/node-docker && npm install && npm run dist'
             }
         }
 

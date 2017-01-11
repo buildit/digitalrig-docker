@@ -1,0 +1,75 @@
+== Installation
+
+1. Prereqs for kops (s3 and public hosted zone)
+1. Deploy k8s cluster using kops (see kops.sh)
+1. Create internal zone ".riglet" in k8s VPC
+1. configure vpn keys (using easyrsa, see keys)
+1. kubectl apply -f vpn.yml (we're using https://github.com/offlinehacker/openvpn-k8s for now)
+1. create vpn.<<public domain>> CNAME
+1. kubectl apply -f traefik.yml
+1. create internal CNAME *.riglet pointing to traefik ELB
+1. kubectl apply -f traefik-public.yml
+1. create public CNAME *.apps.<<public domain>> pointing to traefik-public ELB
+1. login to ECR `eval $(aws ecr get-login --region=us-east-1)`
+1. build and push jenkins_master and nodejs images
+1. kubectl apply -f jenkins.yml (may need to update jenkins image name)
+
+== Tips
+
+We're using IAM policy to authenticate in ECR
+Need to add `"ecr:DescribeImages", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload", "ecr:PutImage"`
+to allow docker image push from nodes
+
+
+== Example job
+
+----
+podTemplate(label: 'nodeapp',
+            containers: [
+                containerTemplate(name: 'nodejs-builder', image: '006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-nodejs:demo', ttyEnabled: true, command: 'cat', privileged: true),
+                containerTemplate(name: 'aws', image: 'cgswong/aws', ttyEnabled: true, command: 'cat'),
+                containerTemplate(name: 'docker', image: 'docker:1.11', ttyEnabled: true, command: 'cat'),
+                containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat')],
+            volumes: [
+                hostPathVolume(mountPath: '/var/gitrepo', hostPath: '/Users/romansafronov/dev/projects/digitalrig-acceptance-tests'),
+                hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')]) {
+    node('nodeapp') {
+        def nextVersion = new Date().time as String
+        container('nodejs-builder') {
+            stage('Checkout') {
+                git(url: 'https://github.com/buildit/digitalrig-acceptance-tests.git')
+            }
+            stage('Build') {
+                sh 'cd ./src/test/apps/node-docker && ls -l && npm install && npm run dist'
+            }
+        }
+
+        def loginCmd = ''
+        container('aws') {
+            loginCmd = sh script: 'aws ecr get-login --region=us-east-1', returnStdout: true
+        }
+
+        container('docker') {
+            stage('Package') {
+                sh loginCmd
+                sh "docker build -t rsafronov-k8s-sample-app:${nextVersion} ./src/test/apps/node-docker"
+                sh "docker tag rsafronov-k8s-sample-app:${nextVersion} 006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:${nextVersion}"
+                sh "docker push 006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:${nextVersion}"
+            }
+        }
+        container('kubectl') {
+            stage('Deploy') {
+                sh "kubectl set image deployment/sample-node-app-deployment sample-node-app=006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:$nextVersion"
+                sh 'kubectl rollout status deployment/sample-node-app-deployment'
+            }
+        }
+        container('nodejs-builder') {
+            stage('e2e test') {
+                //nasty workaround for temporary chrome socket issue (can't use remote mount for it)
+                sh "mkdir /tmp/wscopy && cd ./src/test/apps/node-docker && ls -1 | xargs -I '{}'  ln -s `pwd`/{} /tmp/wscopy/{}"
+                sh "cd /tmp/wscopy && URL=http://sample-node-app-svc# xvfb-run --server-args='-screen 0, 1024x768x16'  npm run test:e2e"
+            }
+        }
+   }
+}
+----
