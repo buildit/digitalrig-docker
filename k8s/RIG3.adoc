@@ -19,7 +19,7 @@
 * Use docker image compression
 * Use dockerfile linter (https://github.com/lukasmartinelli/hadolint)
 
-== Evolution the RIG, part 3
+== Evolution of the RIG, part 3
 
 . Original idea was to start with docker-compose
 .. Simple
@@ -32,7 +32,7 @@
 .. Scales
 .. Super popular (20k stars on GitHub, evolves very quickly, has tons of tools)
 .. Supports Azure, AWS and GCE
-.. Way more complex than Docker (almost like Convox)
+.. Way more complex than plain Docker (almost like Convox)
 
 == RIG 3.0 today
 
@@ -74,6 +74,7 @@ image::rig3_ec2.png[RIG 3.0 on EC2]
 .. It's possible to create any number of isolated application/component deployments
 . Better resource utilization
 .. It's possible to colocate several components on the same host
+.. It's possible to set CPU/RAM limits for each component
 . No extensive configuration
 .. Pull existing images instead of installing and configuring individual packages
 . No hard dependency on AWS
