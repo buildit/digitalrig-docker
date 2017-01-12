@@ -4,7 +4,7 @@
 
 * Quick and simple rig deployment (should not include so many steps)
 * Simple application installation (single click deployment for new components)
-* Portability (option to deploy at Azure, AWS, GCE or on premises)
+* Portability (option to deploy on Azure, AWS, GCE or on-premises)
 * Open design (option to add new / remove outdated components without major effort)
 
 == Starting point ideas
@@ -12,25 +12,25 @@
 * Each rig component is a an individual docker container
 * Use compose as a basic network and name resolution (https://docs.docker.com/compose/networking/)
 * Use edge proxy (traefik) with dynamic backend registry
-* Map wildcard name to route 53 record
-* Move openvpn as part of docker (https://github.com/kylemanna/docker-openvpn)
-* Use jenkins docker slaves
-* Nexus on docker https://github.com/sonatype/docker-nexus3
-* Use docker image compress
+* Map wildcard name to route 53 record backed by ELB and software edge proxy
+* Convert openvpn to docker container (https://github.com/kylemanna/docker-openvpn[docker-openvpn])
+* Use dynamic jenkins docker slaves
+* Run Nexus on docker https://github.com/sonatype/docker-nexus3[docker-nexus3]
+* Use docker image compression
 * Use dockerfile linter (https://github.com/lukasmartinelli/hadolint)
 
 == Evolution the RIG, part 3
 
-. Original idea was to start docker-compose
+. Original idea was to start with docker-compose
 .. Simple
-.. Does not scale
-. Next iteration was about Docker Swarm Mode (new in 1.13)
+.. Does not scale (single machine only)
+. Next iteration was about Docker Swarm Mode (new in 1.12)
 .. Scales
 .. No good tooling (too young)
 .. No cloud integration (you want to use ELB, EBS - you configure and maintain it)
 . Kubernetes version
 .. Scales
-.. Super popular (evolves very quickly, has tons of tools)
+.. Super popular (20k stars on GitHub, evolves very quickly, has tons of tools)
 .. Supports Azure, AWS and GCE
 .. Way more complex than Docker (almost like Convox)
 
@@ -41,9 +41,9 @@
 .. EC2 version is deployed via https://github.com/kubernetes/kops[kops]
 . Uses https://github.com/containous/traefik[Traefik] as Ingress controller for HTTP traffic
 .. There are two instances of Traefik: internal and public
-.. Public instance is accessible from the Internet via ELB (or NodePort in case of Minikube)
+.. Public instance is accessible from the Internet via public ELB (or NodePort in case of Minikube)
 .. Each traefik instance uses Ingress selector to limit number of exposed resources
-.. Wildcard CNAME mapping (i.e. *.app.riglet.io) routes requests to ingress controller
+.. Wildcard CNAME mapping (i.e. *.app.riglet.io and *.app.riglet) routes requests to ingress controller
 .. Traefik uses hostname-based backend dynamic request routing
 . All rig components are deployed as k8s services
 .. Jenkins master does not execute any builds
@@ -62,18 +62,33 @@
 .. Slave executes acceptance tests (using headless-chrome container)
 . EC2 version uses ECR
 .. ECR is used to store all custom docker images (both rig components and applications)
-.. ECR authentication is handled by IAM role of k8s node (no need to explicitely pass creds)
+.. ECR authentication is handled by IAM role of k8s node (no need to explicitly pass creds)
 
 image::rig3_ec2.png[RIG 3.0 on EC2]
+
+== Advantages over 2.0
+
+. More modular
+.. Each component is isolated and may be modified / tested independently
+.. Application dependencies are separated from the Rig (you need node:7 - you bring container)
+.. It's possible to create any number of isolated application/component deployments
+. Better resource utilization
+.. It's possible to colocate several components on the same host
+. No extensive configuration
+.. Pull existing images instead of installing and configuring individual packages
+. No hard dependency on AWS
+.. No need to use Convox
+.. Full application build and deploy may be executed on developer's machine
 
 == To be done
 . Automate bastion host creation, S3 and route53 configuration steps
 . OpenVPN-AD authentication
 . Adopt helm to support more portable manifests
 .. EC2-specific parts
-.. Environment=specific parameters
+.. Environment-specific parameters
 .. Better change management support
 . Add performance monitoring
 . Add better logging (now it is console-based and keeps just last 50M)
 . Test setup on GCE
 . Better documentation
+. Use docker hub for publicly available images?
