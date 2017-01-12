@@ -1,0 +1,79 @@
+= RIG 3.0
+
+== Goals
+
+* Quick and simple rig deployment (should not include so many steps)
+* Simple application installation (single click deployment for new components)
+* Portability (option to deploy at Azure, AWS, GCE or on premises)
+* Open design (option to add new / remove outdated components without major effort)
+
+== Starting point ideas
+
+* Each rig component is a an individual docker container
+* Use compose as a basic network and name resolution (https://docs.docker.com/compose/networking/)
+* Use edge proxy (traefik) with dynamic backend registry
+* Map wildcard name to route 53 record
+* Move openvpn as part of docker (https://github.com/kylemanna/docker-openvpn)
+* Use jenkins docker slaves
+* Nexus on docker https://github.com/sonatype/docker-nexus3
+* Use docker image compress
+* Use dockerfile linter (https://github.com/lukasmartinelli/hadolint)
+
+== Evolution the RIG, part 3
+
+. Original idea was to start docker-compose
+.. Simple
+.. Does not scale
+. Next iteration was about Docker Swarm Mode (new in 1.13)
+.. Scales
+.. No good tooling (too young)
+.. No cloud integration (you want to use ELB, EBS - you configure and maintain it)
+. Kubernetes version
+.. Scales
+.. Super popular (evolves very quickly, has tons of tools)
+.. Supports Azure, AWS and GCE
+.. Way more complex than Docker (almost like Convox)
+
+== RIG 3.0 today
+
+. Runs on k8s
+.. Local version is https://github.com/kubernetes/minikube[minikube]-based
+.. EC2 version is deployed via https://github.com/kubernetes/kops[kops]
+. Uses https://github.com/containous/traefik[Traefik] as Ingress controller for HTTP traffic
+.. There are two instances of Traefik: internal and public
+.. Public instance is accessible from the Internet via ELB (or NodePort in case of Minikube)
+.. Each traefik instance uses Ingress selector to limit number of exposed resources
+.. Wildcard CNAME mapping (i.e. *.app.riglet.io) routes requests to ingress controller
+.. Traefik uses hostname-based backend dynamic request routing
+. All rig components are deployed as k8s services
+.. Jenkins master does not execute any builds
+.. OpenVPN server runs as a service and exposed via ELB
+.. Nexus/Sonar/Jenkins use EBS persistent storage
+. Jenkins uses kubernetes to dynamically provision slaves
+.. Solution is based on https://github.com/jenkinsci/kubernetes-plugin[Kubernetes Plugin]
+.. Slave lifetime is limited by single job execution (like in Travis CI)
+.. Use stock images as much as possible (builder pod may use any number of containers)
+.. All containers share same temporary workspace volume
+. App delivery pipeline is k8s-centric
+.. Jenkins requests new pod-based slave creation (pod configuration is described in Jenkins pipeline DSL)
+.. Slave executes application build in corresponding container (i.e node:7)
+.. Slave executes packaging and image push in stock docker container
+.. Slave requests application staging update using stock kubectl container
+.. Slave executes acceptance tests (using headless-chrome container)
+. EC2 version uses ECR
+.. ECR is used to store all custom docker images (both rig components and applications)
+.. ECR authentication is handled by IAM role of k8s node (no need to explicitely pass creds)
+
+image::rig3_ec2.png[RIG 3.0 on EC2]
+
+== To be done
+. Automate bastion host creation, S3 and route53 configuration steps
+. OpenVPN-AD authentication
+. Adopt helm to support more portable manifests
+.. EC2-specific parts
+.. Environment=specific parameters
+.. Better change management support
+. Add performance monitoring
+. Add better logging (now it is console-based and keeps just last 50M)
+. Test setup on GCE
+. Better documentation
