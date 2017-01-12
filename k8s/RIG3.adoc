@@ -19,7 +19,7 @@
 * Use docker image compression
 * Use dockerfile linter (https://github.com/lukasmartinelli/hadolint)
 
-== Evolution the RIG, part 3
+== Evolution of the RIG, part 3
 
 . Original idea was to start with docker-compose
 .. Simple
