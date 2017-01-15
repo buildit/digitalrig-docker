@@ -1,0 +1,9 @@
+serviceType: NodePort
+gzip:
+  enabled: false
+dashboard:
+  enabled: true
+  domain: traefik-public.kube.local
+kubernetes:
+  namespaces: '["default"]'
+  labelSelector: "realm=public"

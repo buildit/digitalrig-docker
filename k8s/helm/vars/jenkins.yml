@@ -1,0 +1,19 @@
+Master:
+  Name: jenkins-m
+  Image: "rig/k8s/jenkins-master"
+  ImageTag: "latest"
+  ImagePullPolicy: "IfNotPresent"
+  Component: "jenkins-m"
+  UseSecurity: false
+  ServiceType: ClusterIP
+  HostName: "jenkins-m.kube.local"
+
+Persistence:
+  Enabled: true
+  StorageClass: generic
+  AccessMode: ReadWriteOnce
+  Size: 4Gi
+
+Agent:
+  Image: jenkinsci/alpine
+  ImageTag: 2.52

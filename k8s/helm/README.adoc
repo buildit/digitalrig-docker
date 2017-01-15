@@ -1,0 +1,32 @@
+= Helm-based rig deployment on kubernetes cluster
+
+== Prerequisites
+
+* https://github.com/kubernetes/helm[Helm] 2.x
+* Kubernetes / Minikube 1.5.x
+
+== Minikube-specific steps
+
+If you want to have access to dynamically provisioned persistent volumes:
+. Create host directory comewhere below /Users (for macos)
+. Set permissions on this dir to allow Minikube create content in it (should it use user creds?)
+. Replace path in Minikube VM `sudo rm -r /tmp/hostpath_pv && sudo ln -sf /Users/you/path/to/pv /tmp/hostpath_pv`
+
+== Installation
+
+. Clone https://github.com/electroma/charts/[fork][fork] of `kubernetes/charts` to the directory on the same level
+. Configure files under `vars/`
+. Execute `rig_install.sh` (make sure you're using correct cluster)
+
+== Making changes in charts
+
+We're using https://github.com/electroma/charts/[fork] of https://github.com/kubernetes/charts[kubernetes/charts].
+
+In case you need to make change in an existing chart or create new public chart:
+. Create feature branch from `baseline` branch
+. Make and test your changes
+. Create PR to upstream (there are some https://github.com/electroma/charts/blob/master/CONTRIBUTING.md[rules])
+. Merge your chages to `master` branch to make it available
+. Once your PR is merged
+.. Sync `upstream` branch from `kubernetes/charts`
+.. Merge `upstream` to `master`

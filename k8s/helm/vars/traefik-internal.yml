@@ -1,0 +1,6 @@
+serviceType: NodePort
+gzip:
+  enabled: false
+dashboard:
+  enabled: true
+  domain: traefik.kube.local
