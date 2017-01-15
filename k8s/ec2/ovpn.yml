@@ -39,10 +39,16 @@ spec:
               value: 172.20.0.0
             - name: OVPN_K8S_SERVICE_SUBNET
               value: 255.255.0.0
+            # USE K8S DNS!
+            # TODO: should be populated automatically from cluster setup
             - name: OVPN_K8S_DNS
-              value: 172.20.0.2
+              value: 100.64.0.10
             - name: OVPN_K8S_DOMAIN
-              value: riglet
+              value: svc.cluster.local
+            - name: OVPN_K8S_POD_NETWORK
+              value: 100.0.0.0
+            - name: OVPN_K8S_POD_SUBNET
+              value: 255.0.0.0
           ports:
             - name: openvpn
               containerPort: 1194
