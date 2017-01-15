@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: my-nginx
 spec:
-  replicas: 2
+  replicas: 3
   template:
     metadata:
       labels:
@@ -27,3 +27,31 @@ spec:
     protocol: TCP
   selector:
     run: my-nginx
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-nginx
+spec:
+  rules:
+  - host: my-nginx.riglet
+    http:
+      paths:
+      - backend:
+          serviceName: my-nginx
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-nginx-public
+  labels:
+    realm: public
+spec:
+  rules:
+  - host: nginx-public.demo.k8s.riglet.io
+    http:
+      paths:
+      - backend:
+          serviceName: my-nginx
+          servicePort: 80
