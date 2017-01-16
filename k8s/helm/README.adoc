@@ -23,6 +23,7 @@ If you want to have access to dynamically provisioned persistent volumes:
 We're using https://github.com/electroma/charts/[fork] of https://github.com/kubernetes/charts[kubernetes/charts].
 
 In case you need to make change in an existing chart or create new public chart:
+
 . Create feature branch from `baseline` branch
 . Make and test your changes
 . Create PR to upstream (there are some https://github.com/electroma/charts/blob/master/CONTRIBUTING.md[rules])

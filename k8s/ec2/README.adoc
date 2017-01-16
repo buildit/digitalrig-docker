@@ -26,7 +26,7 @@ to allow docker image push from nodes
 ----
 podTemplate(label: 'nodeapp',
             containers: [
-                containerTemplate(name: 'nodejs-builder', image: '006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-nodejs:demo', ttyEnabled: true, command: 'cat', privileged: true),
+                containerTemplate(name: 'nodejs-builder', image: 'builditdigital/node-builder', ttyEnabled: true, command: 'cat', privileged: true),
                 containerTemplate(name: 'aws', image: 'cgswong/aws', ttyEnabled: true, command: 'cat'),
                 containerTemplate(name: 'docker', image: 'docker:1.11', ttyEnabled: true, command: 'cat'),
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat')],

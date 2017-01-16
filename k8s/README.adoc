@@ -2,14 +2,12 @@
 
 == Prereqs
 
-* Minikube
+* Minikube 0.15+
 * kubectl
 
 == Installation
 
-1. Build `images/jenkins-master/build.sh`
-1. Build `images/nodejs/build.sh`
-1. Apply k8s configs `kubectl apply -f .`
+1. See `helm/README.adoc`
 1. Add host records to use name-based ingress routing
 ----
 echo "`minikube ip`  traefik.kube.local jenkins.kube.local sample.kube.local" > /etc/hosts`
@@ -39,7 +37,7 @@ Use `kops.sh` as a basis
 ----
 podTemplate(label: 'nodeapp',
             containers: [
-                containerTemplate(name: 'nodejs-builder', image: 'rig/k8s/nodejs', ttyEnabled: true, command: 'cat', privileged: true),
+                containerTemplate(name: 'nodejs-builder', image: 'builditdigital/node-builder', ttyEnabled: true, command: 'cat', privileged: true),
                 containerTemplate(name: 'docker', image: 'docker:1.11', ttyEnabled: true, command: 'cat'),
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat')],
             volumes: [
@@ -79,3 +77,15 @@ podTemplate(label: 'nodeapp',
     }
 }
 ----
+
+== Image update
+
+If you want to update or create new public Docker image - please do it under one of our organisations:
+
+* digitalrig
+* builditdigital
+
+TBD...
+
+* Image build automation
+* Versioning approach

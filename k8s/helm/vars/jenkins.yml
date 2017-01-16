@@ -1,8 +1,7 @@
 Master:
   Name: jenkins-m
-  Image: "rig/k8s/jenkins-master"
+  Image: "builditdigital/jenkins-master"
   ImageTag: "latest"
-  ImagePullPolicy: "IfNotPresent"
   Component: "jenkins-m"
   UseSecurity: false
   ServiceType: ClusterIP
