@@ -1,16 +1,21 @@
 # internal proxy
 helm delete --purge traefik-internal
-helm install ../../../charts/stable/traefik --namespace kube-system --name traefik-internal -f ./vars/traefik-internal.yml
+helm install ../../../charts/stable/traefik --namespace kube-system --name traefik-int -f ./vars/traefik-internal.yaml
 minikube service -n kube-system traefik-internal-traefik
 
 # public proxy
 helm delete --purge traefik-public
-helm install ../../../charts/stable/traefik --namespace kube-system --name traefik-public -f ./vars/traefik-public.yml
+helm install ../../../charts/stable/traefik --namespace kube-system --name traefik-pub -f ./vars/traefik-public.yaml
 minikube service -n kube-system traefik-public-traefik
 
 # to make jenkins data visible on host: minikube ssh >> sudo ln -s /Users/romansafronov/dev/tmp/pv /tmp/hostpath_pv
 
 #jenkins
 helm delete --purge jenkins-m
-helm install ../../../charts/stable/jenkins --namespace default --name jenkins-m -f ./vars/jenkins.yml
+helm install ../../../charts/stable/jenkins --namespace default --name jenkins -f ./vars/jenkins.yaml
 
+#openvpn
+helm delete --purge openvpn
+helm install ../../../charts/digitalrig/openvpn-k8s --namespace default --name openvpn -f ./vars/openvpn.yaml
+
+# cleanup helm delete --purge `helm ls -q --all`

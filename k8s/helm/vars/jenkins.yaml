@@ -1,8 +1,6 @@
 Master:
-  Name: jenkins-m
   Image: "builditdigital/jenkins-master"
   ImageTag: "latest"
-  Component: "jenkins-m"
   UseSecurity: false
   ServiceType: ClusterIP
   HostName: "jenkins-m.kube.local"
@@ -14,5 +12,5 @@ Persistence:
   Size: 4Gi
 
 Agent:
-  Image: jenkinsci/alpine
-  ImageTag: 2.52
+  Image: jenkinsci/jnlp-slave
+  ImageTag: alpine
