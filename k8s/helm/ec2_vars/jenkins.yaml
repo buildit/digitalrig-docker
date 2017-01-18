@@ -3,13 +3,13 @@ Master:
   ImageTag: "latest"
   UseSecurity: false
   ServiceType: ClusterIP
-  HostName: "jenkins.kube.local"
+  HostName: "jenkins.riglet"
 
 Persistence:
   Enabled: true
   StorageClass: generic
   AccessMode: ReadWriteOnce
-  Size: 4Gi
+  Size: 8Gi
 
 Agent:
   Image: jenkinsci/jnlp-slave
