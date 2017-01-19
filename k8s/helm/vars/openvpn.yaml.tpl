@@ -24,16 +24,11 @@ openvpn:
       cert: true
       ldap: false
 k8s:
-  network: 172.20.0.0
-  subnet: 255.255.0.0
+  # minikube uses b2d, so we need to use it to access b2d dns (try `sudo udhcpd` inside docker machine to find out some details)
+  network: 10.0.2.0
+  subnet: 255.255.255.0
   pod:
     # Kubernetes pod network (optional).
     network: 10.0.0.0
     # Kubernetes pod network subnet (optional).
-    subnet: 255.0.0.0
-
-ldap:
-  url: ldap://{{ .ldapIp }}
-  basename: CN=Users,dc=corp,dc=riglet,dc=io
-  bindname: CN={{ .vpnUser }},CN=Users,DC=corp,DC=riglet,DC=io
-  loginattr: CN
+    subnet: 255.255.255.0

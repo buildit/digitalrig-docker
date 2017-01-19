@@ -16,7 +16,15 @@ If you want to have access to dynamically provisioned persistent volumes:
 
 . Clone https://github.com/electroma/charts/[fork][fork] of `kubernetes/charts` to the directory on the same level
 . Configure files under `vars/`
-. Execute `rig_install.sh` (make sure you're using correct cluster)
+. Execute `rig_install.sh` or `ec2_rig_install.sh` (make sure you're using correct cluster)
+. If you're running on minikube and want to VPN into POD netowk - you may need to make sure network is configured correctly
+.. `minikube ssh` and check `sudo udhcp` - it should give you the understanding of b2d dns setup
+.. Make sure corresponding route is in place
+.. In case you want to make changes to DNS configuration most likely you gonna need to restart kube-dns
+----
+kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=kube-dns" --template "{{ range .items }}{{.metadata.name}} {{end}}"`
+----
+. In case you're running Minikube and wand your PVCs be really persistent add `ln -s /Users/{{ .Some.Existing.Path }} /tmp/hostpath_pv` to `/opt/bootlocal.sh` (may changes after https://github.com/kubernetes/minikube/pull/690[PR#690])
 
 == Making changes in charts
 

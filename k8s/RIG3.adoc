@@ -90,6 +90,6 @@ image::rig3_ec2.png[RIG 3.0 on EC2]
 .. Better change management support
 . Add performance monitoring
 . Add better logging (now it is console-based and keeps just last 50M)
-. Test setup on GCE
+. Test setup on GCE (could use their https://cloud.google.com/free-trial/[free trial])
 . Better documentation
 . Use docker hub for publicly available images?
