@@ -1,4 +1,5 @@
 serviceType: NodePort
+nodePort: 32123
 gzip:
   enabled: false
 dashboard:
