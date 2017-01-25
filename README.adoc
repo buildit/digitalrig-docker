@@ -12,7 +12,7 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 == Installation
 
 . Make sure you're connected to the cluster: `kubectl get nodes` should return list of nodes and masters
-. Clone https://github.com/electroma/charts/[fork][fork] of `kubernetes/charts` to the directory on the same level
+. Clone https://github.com/electroma/charts/[fork] of `kubernetes/charts` to the directory on the same level
 . Generate VPN keys (see `ec2/keys/generate_keys.sh`)
 . Configure chart parameters (do not forget to create configuration from tpl files!)
 .. `helm/vars/` for Minikube
