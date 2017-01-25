@@ -185,7 +185,7 @@ In case you need to make change in an existing chart or create new public chart:
 .. Sync `upstream` branch from `kubernetes/charts`
 .. Merge `upstream` to `master`
 
-== Publishing public Docker images update
+== Publishing public Docker images
 
 If you want to update or create new public Docker image - please do it under one of our organisations:
 
