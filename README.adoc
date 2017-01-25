@@ -72,7 +72,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 == Example job for Minikube
 
-[code,groovy]
+[source,groovy]
 ----
 podTemplate(label: 'nodeapp',
             containers: [
