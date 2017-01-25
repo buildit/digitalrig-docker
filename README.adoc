@@ -1,55 +1,203 @@
-== What is it?
+= K8S version of Jenkins-based CD pipeline.
 
-Dockerized version of Jenkins-based CD pipeline.
+== Prerequisites
 
-== EC2 Deployment
+* Kubernetes 1.5.0+ cluster or Minikube 0.15.0+
+* https://kubernetes.io/docs/user-guide/prereqs/[kubectl cli]
+* https://github.com/kubernetes/helm[Helm] 2.x
+* https://www.terraform.io/downloads.html[Terraform] 0.8.x+
 
-1. create CentOS7 machine with 8+ GB RAM and 10G+ EBS (I used existing VPC)
-1. install docker (https://docs.docker.com/engine/installation/linux/centos/) and docker-compose
-1. open docker api tcp socket (change daemon parameters to include `-H tcp://0.0.0.0:2376`)
-1. add corresponding wildcard Route53 record pointing to this machine (I used *.docker.riglet)
+See link:ec2/README.adoc[EC2 cluster configuration steps]
 
-== Local (MacOS) Deployment
+== Installation
 
-1. install docker for mac and docker-compose
-1. open docker api tcp socket on corresponding vbox interface (i used `socat TCP-LISTEN:2376,range=0.0.0.0/0,reuseaddr,fork UNIX:/var/run/docker.sock`)
-
-== Start
-1. clone this repo
-1. build `rig/jenkins`, `rig/slave`, `rig/node_slave` images
-1. fire up docker-compose
-
-== Configure Jenkins
-
-1. disable global security or change admin password
-1. set global vars (`DOCKER_HOST=tcp://yourhost:2376` and `DOCKER_SERVER=yourhost`) to match exposed tcp socket on the host
-1. add docker cloud provider (use `DOCKER_HOST` as URL)
-1. add template for node/jenkins (`rig/node_slave` image + privileged flag)
-
-== Example job to build-test-deploy web application
-[source,groovy]
+. Make sure you're connected to the cluster: `kubectl get nodes` should return list of nodes and masters
+. Clone https://github.com/electroma/charts/[fork][fork] of `kubernetes/charts` to the directory on the same level
+. Generate VPN keys (see `ec2/keys/generate_keys.sh`)
+. Configure chart parameters (do not forget to create configuration from tpl files!)
+.. `helm/vars/` for Minikube
+.. `helm/ec2_vars` for EC2
+. Execute commands to install RIG components
+.. from `rig_install.sh` for Minikube
+.. from `ec2_rig_install.sh` for EC2
+.. *Important*: make sure you're using correct cluster (`kubectl config get-contexts`)!
+. Create name records for static resources
+.. On EC2
+... create vpn.<<public domain>> CNAME
+... create internal CNAME *.riglet pointing to traefik-int ELB
+... create public CNAME *.apps.<<public domain>> pointing to traefik-pub ELB
+.. On Minikube
+... Add record to make name-based routing work
 ----
-node('docker-node') {
-    stage('Checkout') {
-        git(url: 'https://github.com/buildit/digitalrig-acceptance-tests.git')
-    }
-    stage('Build') {
-        dir('./src/test/apps/node-docker') {
-            sh 'npm install && npm run dist'
-            def sampleContainer = docker.build 'my-environment:snapshot'
-            sampleContainer.withRun('-p 18080:80') {
-                sh "URL=http://$DOCKER_SERVER:18080# xvfb-run --server-args='-screen 0, 1024x768x16'  npm run test:e2e"
+echo "`minikube ip`  traefik-public.kube.local traefik.kube.local jenkins.kube.local traefik-public.kube.local" >> /etc/hosts`
+----
+
+== Minikube hacks and tips
+
+. Don't forget to add `/etc/hosts` record after deploying new application (ingress controller uses host name to route http requests)
+. If you're running on minikube and want to VPN into POD network - you may need to make sure network is configured correctly
+.. `minikube ssh` and check `sudo udhcp` - it should give you the understanding of b2d dns setup
+.. Make sure corresponding route is in place
+.. In case you want to make changes to DNS configuration most likely you gonna need to restart kube-dns
+----
+kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=kube-dns" --template "{{ range .items }}{{.metadata.name}} {{end}}"`
+----
+. In case you're running Minikube and wand your PVCs be really persistent add `ln -s /Users/{{ .Some.Existing.Path }} /tmp/hostpath_pv` to `/opt/bootlocal.sh` (may changes after https://github.com/kubernetes/minikube/pull/690[PR#690])
+. If you want to have access to dynamically provisioned persistent volumes:
+.. Create host directory somewhere below `/Users` (for MacOS)
+.. Set permissions on this dir to allow Minikube create content in it (should it use user creds?)
+.. Replace path in Minikube VM `sudo rm -r /tmp/hostpath_pv && sudo ln -sf /Users/you/path/to/pv /tmp/hostpath_pv`
+
+== Usage on Minikube
+
+. Jenkins is available on http://jenkins.kube.local
+. Traefik Internal web console is available on http://traefik.kube.local
+. Traefik Public web console is available on http://traefik-public.kube.local
+
+== Usage on EC2
+
+. K8S cluster is deployed in VPC and is not accessible from the internet
+. Public applications will be available under `.apps.[cluster.domain]`
+. Public Traefik web console is available on http://traefik-public.apps.k8s.riglet.io
+. To access internal apps you need to login into VPN first
+.. Jenkins is available on http://jenkins.riglet
+.. Internal Traefik web console is available on http://traefik.riglet
+
+== Principles
+
+* We're using Traefik as k8s ingress controller
+* There are two ingress controllers: private (available within VPC) and public (exposed using external ELB)
+* All resources are available on private ingress contoller
+* Resources matching selector `realm=public` are available on public ingress controller
+
+== Example job for Minikube
+
+[code,groovy]
+----
+podTemplate(label: 'nodeapp',
+            containers: [
+                containerTemplate(name: 'nodejs-builder', image: 'builditdigital/node-builder', ttyEnabled: true, command: 'cat', privileged: true),
+                containerTemplate(name: 'docker', image: 'docker:1.11', ttyEnabled: true, command: 'cat'),
+                containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat')],
+            volumes: [
+                hostPathVolume(mountPath: '/var/gitrepo', hostPath: '/Users/romansafronov/dev/projects/digitalrig-acceptance-tests'),
+                hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')]) {
+    node('nodeapp') {
+        def nextVersion = new Date().time as String
+        container('nodejs-builder') {
+            stage('Checkout') {
+                git(url: 'file:///var/gitrepo')
+            }
+            stage('Build') {
+                sh 'cd ./src/test/apps/node-docker && npm install && npm run dist'
             }
         }
-    }
-    stage('Deploy') {
-        try {
-            sh 'docker stop test'
-            sh 'docker rm test'
-        } catch(Exception e) {
-            // nothing
+
+        container('docker') {
+            stage('Package') {
+                sh "cd ./src/test/apps/node-docker && docker build -t my-environment:${nextVersion} ."
+            }
         }
-        sh 'docker run --name test --network digitalrigdocker_default -d  my-environment:snapshot'
+        container('kubectl') {
+            stage('Deploy') {
+                sh "kubectl set image deployment/sample-node-app-deployment sample-node-app=my-environment:$nextVersion"
+                sh 'kubectl rollout status deployment/sample-node-app-deployment'
+            }
+        }
+        container('nodejs-builder') {
+            stage('e2e test') {
+                //nasty workaround for temporary chrome socket issue (can't use remote mount for it)
+                sh "mkdir /tmp/wscopy && cd ./src/test/apps/node-docker && ls -1 | xargs -I '{}'  ln -s `pwd`/{} /tmp/wscopy/{}"
+                sh "cd /tmp/wscopy && URL=http://sample-node-app-svc# xvfb-run --server-args='-screen 0, 1024x768x16'  npm run test:e2e"
+            }
+        }
+
+        // TODO: ROLLBACK RELEASE ON FAILURE??
     }
 }
 ----
+
+== Example job for EC2
+
+----
+podTemplate(label: 'nodeapp',
+            containers: [
+                containerTemplate(name: 'nodejs-builder', image: 'builditdigital/node-builder', ttyEnabled: true, command: 'cat', privileged: true),
+                containerTemplate(name: 'aws', image: 'cgswong/aws', ttyEnabled: true, command: 'cat'),
+                containerTemplate(name: 'docker', image: 'docker:1.11', ttyEnabled: true, command: 'cat'),
+                containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat')],
+            volumes: [
+                hostPathVolume(mountPath: '/var/gitrepo', hostPath: '/Users/romansafronov/dev/projects/digitalrig-acceptance-tests'),
+                hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')]) {
+    node('nodeapp') {
+        def nextVersion = new Date().time as String
+        container('nodejs-builder') {
+            stage('Checkout') {
+                git(url: 'https://github.com/buildit/digitalrig-acceptance-tests.git')
+            }
+            stage('Build') {
+                sh 'cd ./src/test/apps/node-docker && ls -l && npm install && npm run dist'
+            }
+        }
+
+        def loginCmd = ''
+        container('aws') {
+            loginCmd = sh script: 'aws ecr get-login --region=us-east-1', returnStdout: true
+        }
+
+        container('docker') {
+            stage('Package') {
+                sh loginCmd
+                sh "docker build -t rsafronov-k8s-sample-app:${nextVersion} ./src/test/apps/node-docker"
+                sh "docker tag rsafronov-k8s-sample-app:${nextVersion} 006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:${nextVersion}"
+                sh "docker push 006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:${nextVersion}"
+            }
+        }
+        container('kubectl') {
+            stage('Deploy') {
+                sh "kubectl set image deployment/sample-node-app-deployment sample-node-app=006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:$nextVersion"
+                sh 'kubectl rollout status deployment/sample-node-app-deployment'
+            }
+        }
+        container('nodejs-builder') {
+            stage('e2e test') {
+                //nasty workaround for temporary chrome socket issue (can't use remote mount for it)
+                sh "mkdir /tmp/wscopy && cd ./src/test/apps/node-docker && ls -1 | xargs -I '{}'  ln -s `pwd`/{} /tmp/wscopy/{}"
+                sh "cd /tmp/wscopy && URL=http://sample-node-app-svc# xvfb-run --server-args='-screen 0, 1024x768x16'  npm run test:e2e"
+            }
+        }
+   }
+}
+----
+
+== Contributing to charts
+
+We're using https://github.com/electroma/charts/[fork] of https://github.com/kubernetes/charts[kubernetes/charts].
+
+In case you need to make change in an existing chart or create new public chart:
+
+. Create feature branch from `baseline` branch
+. Make and test your changes
+. Create PR to upstream (there are some https://github.com/electroma/charts/blob/master/CONTRIBUTING.md[rules])
+. Merge your changes to `master` branch to make it available
+. Once your PR is merged
+.. Sync `upstream` branch from `kubernetes/charts`
+.. Merge `upstream` to `master`
+
+== Publishing public Docker images update
+
+If you want to update or create new public Docker image - please do it under one of our organisations:
+
+* digitalrig
+* builditdigital
+
+TBD...
+
+* Image build automation
+* Versioning approach
+
+== TODOs
+
+* Better automation of VPN keys generation
+* Better automation of helm installation (create composite chart?)
+* Automate sample job deployment

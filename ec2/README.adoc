@@ -1,0 +1,10 @@
+== EC2 Kubernetes cluster installation and configuration
+
+. Prerequisites for KOPS (S3 and public hosted zone)
+.. In case of new region you may need to create a new S3 bucket for kops configuration (see tf/prereqs.tf)
+.. *Important*: there should be NS delegation record in parent Route53 record (see https://github.com/kubernetes/kops/issues/859#issuecomment-261697614)
+. Deploy k8s cluster using kops (see kops.sh)
+. Create internal zone ".riglet" in k8s VPC
+. Adjust IAM policy to authenticate in ECR
+.. Need to add `"ecr:DescribeImages", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload", "ecr:PutImage"`
+to allow docker image push from nodes
