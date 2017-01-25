@@ -23,9 +23,9 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 .. *Important*: make sure you're using correct cluster (`kubectl config get-contexts`)!
 . Create name records for static resources
 .. On EC2
-... create vpn.<<public domain>> CNAME
+... create vpn.{{public.domain}} CNAME
 ... create internal CNAME *.riglet pointing to traefik-int ELB
-... create public CNAME *.apps.<<public domain>> pointing to traefik-pub ELB
+... create public CNAME *.apps.{{public.domain}} pointing to traefik-pub ELB
 .. On Minikube
 ... Add record to make name-based routing work
 ----
@@ -58,7 +58,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 . K8S cluster is deployed in VPC and is not accessible from the internet
 . Public applications will be available under `.apps.[cluster.domain]`
-. Public Traefik web console is available on http://traefik-public.apps.k8s.riglet.io
+. Public Traefik web console is available on http://traefik-public.apps.{{public.domain}}
 . To access internal apps you need to login into VPN first
 .. Jenkins is available on http://jenkins.riglet
 .. Internal Traefik web console is available on http://traefik.riglet
@@ -67,7 +67,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 * We're using Traefik as k8s ingress controller
 * There are two ingress controllers: private (available within VPC) and public (exposed using external ELB)
-* All resources are available on private ingress contoller
+* All resources are available on private ingress controller
 * Resources matching selector `realm=public` are available on public ingress controller
 
 == Example job for Minikube
@@ -119,6 +119,7 @@ podTemplate(label: 'nodeapp',
 
 == Example job for EC2
 
+[source,groovy]
 ----
 podTemplate(label: 'nodeapp',
             containers: [
