@@ -82,14 +82,14 @@ image::rig3_ec2.png[RIG 3.0 on EC2]
 .. Full application build and deploy may be executed on developer's machine
 
 == To be done
-. Automate bastion host creation, S3 and route53 configuration steps
-. OpenVPN-AD authentication
-. Adopt helm to support more portable manifests
-.. EC2-specific parts
-.. Environment-specific parameters
-.. Better change management support
+. Automate [.line-through]#bastion host creation[.line-through]#, S3 and route53 configuration steps
+. [.line-through]#OpenVPN-AD authentication#
+. [.line-through]#Adopt helm to support more portable manifests[.line-through]#
+.. [.line-through]#EC2-specific parts[.line-through]#
+.. [.line-through]#Environment-specific parameters[.line-through]#
+.. [.line-through]#Better change management support[.line-through]#
 . Add performance monitoring
 . Add better logging (now it is console-based and keeps just last 50M)
 . Test setup on GCE (could use their https://cloud.google.com/free-trial/[free trial])
 . Better documentation
-. Use docker hub for publicly available images?
+. [.line-through]#Use docker hub for publicly available images?[.line-through]#
