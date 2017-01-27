@@ -11,14 +11,14 @@ Persistence:
   StorageClass: generic
   AccessMode: ReadWriteOnce
   Size: 4Gi
-  volumes:
-  - name: projects
-    hostPath:
-      path: /Users/romansafronov/dev/projects
-  mounts:
-  - mountPath: /var/projects
-    name: projects
-    readOnly: true
+#  volumes:
+#  - name: projects
+#    hostPath:
+#      path: /Users/romansafronov/dev/projects
+#  mounts:
+#  - mountPath: /var/projects
+#    name: projects
+#    readOnly: true
 
 Agent:
   Image: jenkinsci/jnlp-slave
