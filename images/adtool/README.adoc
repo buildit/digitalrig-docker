@@ -3,7 +3,7 @@
 Simple image with http://khmel.org/?p=634[adtool] installed.
 May be used as a lightweight alternative to Windows User Manager.
 
-You may build and run it locally: `docker build -t builditdigital/adtool . && docker run --rm -ti builditdigital/adtool bash`
+You may run it locally: `docker run --rm -ti builditdigital/adtool bash`
 And then add AD users:
 ----
 alias ad="adtool -H ldap://172.20.0.149 -D 'CN=Administrator,CN=Users,DC=corp,DC=riglet,DC=io' -w Administrator123 -b 'CN=Users,DC=corp,DC=riglet,DC=io'"
@@ -16,6 +16,10 @@ ad  setpass another Another123
 # Anlock account
 ad userunlock another
 ----
+
+== Image update
+
+`docker build -t builditdigital/adtool && docker push builditdigital/adtool`
 
 == TODOs
 
