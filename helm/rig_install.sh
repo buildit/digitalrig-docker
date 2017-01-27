@@ -17,6 +17,10 @@ minikube service -n kube-system  --format "http://traefik-public.kube.local:{{.P
 helm delete --purge jenkins
 helm install ../../charts/stable/jenkins --namespace default --name jenkins -f ./vars/jenkins.yaml
 
+# AD DC local controller (optional)
+helm delete --purge ad-dc
+helm install ../../charts/digitalrig/samba-ad-dc/ -n ad-dc -f ./vars/ad-dc.yaml
+
 #openvpn
 helm delete --purge openvpn
 helm install ../../charts/digitalrig/openvpn-k8s --namespace default --name openvpn -f ./vars/openvpn.yaml

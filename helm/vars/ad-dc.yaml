@@ -1,0 +1,15 @@
+image:
+  repository: builditdigital/samba-ad-dc
+  tag: latest
+  pullPolicy: Always
+service:
+  type: NodePort
+persistence:
+  enabled: true
+  storageClass: generic
+  accessMode: ReadWriteOnce
+  size: 128Mi
+ad:
+ realm: corp.riglet.io
+ password: Local123
+ strictTls: false
