@@ -4,7 +4,9 @@
 
 This is a docker container running Samba4 as a domain controller.
 
-The first time you start the container, a setup-script will run and provision the domain controller using the supplied [environment variables](#environment-variables).
+The first time you start the container, a setup-script will run and provision the domain controller using the supplied link:#environment_variables[environment variables]
+
+environment variables.
 After the setup has finished successfully, the container will continue starting (unless `SAMBA_SETUP_ONLY` is set) and start the domain controller.
 
 The container saves all necessary files within `/var/lib/samba`.
@@ -67,4 +69,4 @@ If the DC has been setup, none of these variables have any effect on the contain
 . `SAMBA_DNS_FORWARDER` (*optional*) You can supply the dns-forwarder Samba will use to answer non-local DNS-requests clients submit.
 . `SAMBA_SETUP_ONLY` (*optional*) If this variable is set to a arbitrary non-empty string, the container will stop (with a non-zero exit code!) after the setup has finished and does not launch samba/the domain controller.
     If the container is already setup, this variable has no effect.
-. `SAMBA_NO_TLS` (*optional*) Do not require TLS encrypted connections
+. `SAMBA_NO_TLS` (*optional*) Do not require TLS encrypted connections.
