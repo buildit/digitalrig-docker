@@ -4,7 +4,7 @@ FROM node:7
 RUN mkdir -p /root/work/ \
     && apt-get -y update \
     && apt-get -y -o Dpkg::Options::="--force-confnew"  --no-install-recommends install \
-        unzip git xvfb chromium libgconf-2-4 xauth \
+        ssh unzip git xvfb chromium libgconf-2-4 xauth \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/man/?? /usr/share/man/??_*git --
 
