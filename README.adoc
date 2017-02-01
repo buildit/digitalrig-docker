@@ -50,8 +50,8 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 == Usage on Minikube
 
-. Jenkins is available on http://jenkins.kube.local
-. Traefik Internal web console is available on http://traefik.kube.local
+. Jenkins is available on http://jenkins.kube.local:32123
+. Traefik Internal web console is available on http://traefik.kube.local:32123
 . Traefik Public web console is available on http://traefik-public.kube.local
 
 == Usage on EC2
