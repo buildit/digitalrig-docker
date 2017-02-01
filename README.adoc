@@ -72,6 +72,8 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 == Example job for Minikube
 
+*Note*: change mount path for `/var/gitrepo` to match your setup
+
 [source,groovy]
 ----
 podTemplate(label: 'nodeapp',
@@ -199,6 +201,7 @@ TBD...
 
 == TODOs
 
-* Better automation of VPN keys generation
-* Better automation of helm installation (create composite chart?)
+* Migrate sample app to helm
+* Better defaults for VPN keys generation (CA, client and server name)
+* Better automation of rig components installation (create composite chart?)
 * Automate sample job deployment
