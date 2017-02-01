@@ -1,5 +1,6 @@
 # Install tiller
 helm init
+kubectl rollout status deployment/tiller-deploy -n kube-system
 
 # internal proxy
 helm delete --purge traefik-int
