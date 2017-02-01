@@ -72,7 +72,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 == Example job for Minikube
 
-*Note*: change mount path for `/var/gitrepo` to match your setup
+*Note*: change mount path for `/var/gitrepo` to match your setup (you may need to clone https://github.com/buildit/digitalrig-acceptance-tests[digitalrig-acceptance-tests] first)
 
 [source,groovy]
 ----
