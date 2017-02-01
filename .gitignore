@@ -1,4 +1,4 @@
 .idea
 *.iml
 .env
-pki
+keys/tmp

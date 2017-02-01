@@ -28,3 +28,5 @@ helm install ../../charts/digitalrig/openvpn-k8s --namespace default --name open
 minikube service -n default --format "remote {{.IP}} {{.Port}}" openvpn-openvpn
 
 # cleanup helm delete --purge `helm ls -q --all`
+
+helm install ../../charts/stable/jenkins --namespace default --name jenkins2 -f ./vars/jenkins2.yaml
