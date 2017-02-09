@@ -4,10 +4,16 @@
 
 * Kubernetes 1.5.0+ cluster or Minikube 0.15.0+
 ** In case of Minikube - you should install virtualbox first
+*** `brew cask install virtualbox`
+*** `brew cask install minikube`
 ** As a workaround for https://github.com/kubernetes/minikube/issues/1056[#1056] start minikube using old image (`minikube start --iso-url https://storage.googleapis.com/minikube/minikube-0.7.iso`)
+*** should be fixed in 1.6.0+
 * https://kubernetes.io/docs/user-guide/prereqs/[kubectl cli]
+** `brew install kubectl`
 * https://github.com/kubernetes/helm[Helm] 2.x
+** `brew install kubernetes-helm`
 * https://www.terraform.io/downloads.html[Terraform] 0.8.x+
+** `brew install terraform`
 * Digitalrig repos cloned at the same parent directory
 ** https://github.com/buildit/digitalrig-docker[this repo] (`git clone https://github.com/buildit/digitalrig-docker.git`)
 ** https://github.com/electroma/charts/[fork] of `kubernetes/charts` (`git clone https://github.com/electroma/charts.git`)
