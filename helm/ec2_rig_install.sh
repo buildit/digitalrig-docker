@@ -7,15 +7,13 @@ helm delete --purge openvpn
 helm install ../../charts/digitalrig/openvpn-k8s --namespace default --name openvpn -f ./ec2_vars/openvpn.yaml
 # helm upgrade openvpn ../../charts/digitalrig/openvpn-k8s --namespace default -f ./ec2_vars/openvpn.yaml
 
-# internal proxy
-helm delete --purge traefik-int
-helm install ../../charts/stable/traefik --namespace kube-system --name traefik-int -f ./ec2_vars/traefik-internal.yaml
+# internal ingress controller
+helm delete --purge nginx-int
+helm install ../../charts/stable/nginx-lego --name nginx-int -f ./ec2_vars/nginx-internal.yaml
 
-# at this point need to create/adjust route53 wildcard private record (*.riglet) to make traefik work as internal proxy
-
-# public proxy
-helm delete --purge traefik-pub
-helm install ../../charts/stable/traefik --namespace kube-system --name traefik-pub -f ./ec2_vars/traefik-public.yaml
+# public ingress controller
+helm delete --purge nginx-pub
+helm install ../../charts/stable/nginx-lego --name nginx-pub --namespace public -f ./ec2_vars/nginx-public.yaml
 
 # at this point need to create/adjust route53 wildcard record (*.apps.[domain]) to make traefik work as an edge proxy
 

@@ -39,13 +39,14 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 . Create name records for static resources
 .. On EC2
 ... create vpn.{{public.domain}} CNAME
-... create internal CNAME *.riglet pointing to traefik-int ELB
-... create public CNAME *.apps.{{public.domain}} pointing to traefik-pub ELB
+... create internal CNAME *.riglet pointing to nginx-int ELB
+... create public CNAME *.apps.{{public.domain}} pointing to nginx-pub ELB
 .. On Minikube
 ... Add record to make name-based routing work
 ----
-echo "`minikube ip`  traefik-public.kube.local traefik.kube.local jenkins.kube.local traefik-public.kube.local" | sudo tee -a /etc/hosts >/dev/null
+echo "`minikube ip` nginx.kube.local jenkins.kube.local" >> /etc/hosts`
 ----
+... Alternatively you https://gist.github.com/eloypnd/5efc3b590e7c738630fdcf0c10b68072[install dnsmasq] and cinfugure wildcard dns record there
 
 == Minikube hacks and tips
 
@@ -66,24 +67,24 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 == Usage on Minikube
 
 . Jenkins is available on http://jenkins.kube.local:32123
-. Traefik Internal web console is available on http://traefik.kube.local:32123
-. Traefik Public web console is available on http://traefik-public.kube.local
+. NGINX Internal web console is available on http://nginx.kube.local:NNNNN (where NNNNN is the node port `monitoring` of `nginx-int`)
+. NGINX Public web console is available on http://nginx.kube.local:NNNNN (where NNNNN is the node port `monitoring` of `nginx-pub`)
 
 == Usage on EC2
 
 . K8S cluster is deployed in VPC and is not accessible from the internet
 . Public applications will be available under `.apps.[cluster.domain]`
-. Public Traefik web console is available on http://traefik-public.apps.{{public.domain}}
+. Public NGINX web console is available on http://nginx.apps.{{public.domain}}
 . To access internal apps you need to login into VPN first
 .. Jenkins is available on http://jenkins.riglet
-.. Internal Traefik web console is available on http://traefik.riglet
+.. Internal NGINX web console is available on http://nginx.riglet
 
 == Principles
 
-* We're using Traefik as k8s ingress controller
+* We're using NGINX as k8s ingress controller
 * There are two ingress controllers: private (available within VPC) and public (exposed using external ELB)
 * All resources are available on private ingress controller
-* Resources matching selector `realm=public` are available on public ingress controller
+* Ingress objects in `public` namespace are available on both internal and public ingress controller
 
 == Example job for Minikube
 

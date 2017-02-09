@@ -2,13 +2,13 @@
 helm init
 kubectl rollout status deployment/tiller-deploy -n kube-system
 
-# internal proxy
-helm delete --purge traefik-int
-helm install ../../charts/stable/traefik --namespace kube-system --name traefik-int -f ./vars/traefik-internal.yaml
+# internal ingress controller
+helm delete --purge nginx-int
+helm install ../../charts/stable/nginx-lego --name nginx-int -f ./vars/nginx-internal.yaml
 
-# public proxy
-helm delete --purge traefik-pub
-helm install ../../charts/stable/traefik --namespace kube-system --name traefik-pub -f ./vars/traefik-public.yaml
+# public ingress controller
+helm delete --purge nginx-pub
+helm install ../../charts/stable/nginx-lego --name nginx-pub --namespace public -f ./vars/nginx-public.yaml
 
 # to make jenkins data visible on host: minikube ssh >> sudo ln -s /Users/romansafronov/dev/tmp/pv /tmp/hostpath_pv
 
@@ -29,3 +29,4 @@ minikube service -n default --format "{{.IP}}:{{.Port}}" openvpn-openvpn
 
 minikube service -n kube-system  --format "http://traefik.kube.local:{{.Port}}" traefik-int-traefik
 # cleanup helm delete --purge `helm ls -q --all`
+
