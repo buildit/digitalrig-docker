@@ -8,7 +8,7 @@ Master:
 
 Persistence:
   Enabled: true
-  StorageClass: generic
+  StorageClass:
   AccessMode: ReadWriteOnce
   Size: 4Gi
 #  volumes:
