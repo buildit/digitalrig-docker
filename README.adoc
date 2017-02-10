@@ -44,7 +44,7 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 .. On Minikube
 ... Add record to make name-based routing work
 ----
-sudo echo "`minikube ip`  traefik-public.kube.local traefik.kube.local jenkins.kube.local traefik-public.kube.local" >> /etc/hosts
+echo "`minikube ip`  traefik-public.kube.local traefik.kube.local jenkins.kube.local traefik-public.kube.local" >> /etc/hosts
 ----
 
 == Minikube hacks and tips
