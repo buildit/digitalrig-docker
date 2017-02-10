@@ -32,6 +32,7 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 .. `helm/vars/` for Minikube
 .. `helm/ec2_vars` for EC2
 . Execute commands to install RIG components
+.. ensure working directory is `helm`
 .. from `rig_install.sh` for Minikube
 .. from `ec2_rig_install.sh` for EC2
 .. *Important*: make sure you're using correct cluster (`kubectl config get-contexts`)!
