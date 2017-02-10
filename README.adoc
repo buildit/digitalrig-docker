@@ -14,6 +14,8 @@
 ** `brew install kubernetes-helm`
 * https://www.terraform.io/downloads.html[Terraform] 0.8.x+
 ** `brew install terraform`
+* wget
+** `brew install wget`
 * Digitalrig repos cloned at the same parent directory
 ** https://github.com/buildit/digitalrig-docker[this repo] (`git clone https://github.com/buildit/digitalrig-docker.git`)
 ** https://github.com/electroma/charts/[fork] of `kubernetes/charts` (`git clone https://github.com/electroma/charts.git`)
