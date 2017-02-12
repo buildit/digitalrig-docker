@@ -2,12 +2,13 @@
 
 == Prerequisites
 
-* Kubernetes 1.5.0+ cluster or Minikube 0.15.0+
+* Kubernetes 1.5.x cluster or Minikube 0.16.x
 ** In case of Minikube - you should install virtualbox first
 *** `brew cask install virtualbox`
 *** `brew cask install minikube`
 ** As a workaround for https://github.com/kubernetes/minikube/issues/1056[#1056] start minikube using old image (`minikube start --iso-url https://storage.googleapis.com/minikube/minikube-0.7.iso`)
 *** should be fixed in 1.6.0+
+** Pass port range parameter to allow Minikube to use lower ports `minikube start --extra-config=apiserver.GenericServerRunOptions.ServiceNodePortRange=80-32000`
 * https://kubernetes.io/docs/user-guide/prereqs/[kubectl cli]
 ** `brew install kubectl`
 * https://github.com/kubernetes/helm[Helm] 2.x
@@ -27,7 +28,7 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 
 . Make sure you're connected to the cluster: `kubectl get nodes` should return list of nodes and masters
 . Open terminal and go to the directory with copy of this repo
-. Generate VPN keys (run `keys/generate_keys.sh` and use output to create client VPN configuration and populate `openvpn.yaml.tpl`)
+. Generate VPN keys (run `keys/generate_keys.sh` and use output to create client VPN configuration and populate `openvpn.yaml` by creating a copy of `openvpn.yaml.tpl`)
 . Configure chart parameters (do not forget to create configuration from tpl files!)
 .. `helm/vars/` for Minikube
 .. `helm/ec2_vars` for EC2
@@ -42,11 +43,11 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 ... create internal CNAME *.riglet pointing to nginx-int ELB
 ... create public CNAME *.apps.{{public.domain}} pointing to nginx-pub ELB
 .. On Minikube
-... Add record to make name-based routing work
+... https://gist.github.com/eloypnd/5efc3b590e7c738630fdcf0c10b68072[install dnsmasq] and configure resolver for `.local` domain + wildcard DNS record pointing to `minikube ip` output
+... More lightweight alternative is to add explicit host-record to make name-based routing work
 ----
 echo "`minikube ip` nginx.kube.local jenkins.kube.local" >> /etc/hosts`
 ----
-... Alternatively you https://gist.github.com/eloypnd/5efc3b590e7c738630fdcf0c10b68072[install dnsmasq] and cinfugure wildcard dns record there
 
 == Minikube hacks and tips
 
@@ -66,7 +67,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 == Usage on Minikube
 
-. Jenkins is available on http://jenkins.kube.local:32123
+. Jenkins is available on http://jenkins.kube.local
 . NGINX Internal web console is available on http://nginx.kube.local:NNNNN (where NNNNN is the node port `monitoring` of `nginx-int`)
 . NGINX Public web console is available on http://nginx.kube.local:NNNNN (where NNNNN is the node port `monitoring` of `nginx-pub`)
 
@@ -77,7 +78,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 . Public NGINX web console is available on http://nginx.apps.{{public.domain}}
 . To access internal apps you need to login into VPN first
 .. Jenkins is available on http://jenkins.riglet
-.. Internal NGINX web console is available on http://nginx.riglet
+.. Internal NGINX web console is available on http://nginx-int-nginx-lego-monitoring.default.svc.cluster.local:18080/nginx_status/
 
 == Principles
 
@@ -118,6 +119,7 @@ podTemplate(label: 'nodeapp',
         }
         container('kubectl') {
             stage('Deploy') {
+                sh "kubectl get deploy -o name | grep sample-node-app || kubectl create -f src/test/apps/node-docker/kubernetes/sample.yml"
                 sh "kubectl set image deployment/sample-node-app-deployment sample-node-app=my-environment:$nextVersion"
                 sh 'kubectl rollout status deployment/sample-node-app-deployment'
             }
@@ -137,6 +139,8 @@ podTemplate(label: 'nodeapp',
 
 == Example job for EC2
 
+*Note*: you need to change `region` variable to match your AWS region and create ECR repository (set `repoName` variable in the following job definition)
+
 [source,groovy]
 ----
 podTemplate(label: 'nodeapp',
@@ -146,10 +150,11 @@ podTemplate(label: 'nodeapp',
                 containerTemplate(name: 'docker', image: 'docker:1.11', ttyEnabled: true, command: 'cat'),
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat')],
             volumes: [
-                hostPathVolume(mountPath: '/var/gitrepo', hostPath: '/Users/romansafronov/dev/projects/digitalrig-acceptance-tests'),
                 hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')]) {
     node('nodeapp') {
         def nextVersion = new Date().time as String
+        def repoName = 'rsafronov-k8s-sample-app'
+        def region = 'us-east-1'
         container('nodejs-builder') {
             stage('Checkout') {
                 git(url: 'https://github.com/buildit/digitalrig-acceptance-tests.git')
@@ -161,20 +166,21 @@ podTemplate(label: 'nodeapp',
 
         def loginCmd = ''
         container('aws') {
-            loginCmd = sh script: 'aws ecr get-login --region=us-east-1', returnStdout: true
+            loginCmd = sh script: "aws ecr get-login --region=${region}", returnStdout: true
         }
 
         container('docker') {
             stage('Package') {
                 sh loginCmd
-                sh "docker build -t rsafronov-k8s-sample-app:${nextVersion} ./src/test/apps/node-docker"
-                sh "docker tag rsafronov-k8s-sample-app:${nextVersion} 006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:${nextVersion}"
-                sh "docker push 006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:${nextVersion}"
+                sh "docker build -t ${repoName}:${nextVersion} ./src/test/apps/node-docker"
+                sh "docker tag ${repoName}:${nextVersion} 006393696278.dkr.ecr.${region}.amazonaws.com/${repoName}:${nextVersion}"
+                sh "docker push 006393696278.dkr.ecr.${region}.amazonaws.com/${repoName}:${nextVersion}"
             }
         }
         container('kubectl') {
             stage('Deploy') {
-                sh "kubectl set image deployment/sample-node-app-deployment sample-node-app=006393696278.dkr.ecr.us-east-1.amazonaws.com/rsafronov-k8s-sample-app:$nextVersion"
+                sh "kubectl get deploy -o name | grep sample-node-app || kubectl create -f src/test/apps/node-docker/kubernetes/sample.yml"
+                sh "kubectl set image deployment/sample-node-app-deployment sample-node-app=006393696278.dkr.ecr.${region}.amazonaws.com/${repoName}:${nextVersion}"
                 sh 'kubectl rollout status deployment/sample-node-app-deployment'
             }
         }
@@ -188,6 +194,15 @@ podTemplate(label: 'nodeapp',
    }
 }
 ----
+
+== Next steps
+
+* Install https://github.com/buildit/heimdall/tree/master/k8s[Heimdall] to enable access control for other components
+* Build some applications
+** https://github.com/buildit/Eolas/tree/master/k8s[Eolas]
+** https://github.com/buildit/Synapse/tree/master/k8s[Synapse]
+** Twig-api
+** Twig
 
 == Contributing to charts
 
