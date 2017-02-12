@@ -5,7 +5,20 @@ Master:
   ServiceType: ClusterIP
   LoadBalancerSourceRanges:
   HostName: "jenkins.kube.local"
+  InitScripts:
+  - |
+    import jenkins.plugins.git.GitSCMSource
+    import org.jenkinsci.plugins.workflow.libs.GlobalLibraries
+    import org.jenkinsci.plugins.workflow.libs.LibraryConfiguration
+    import org.jenkinsci.plugins.workflow.libs.SCMSourceRetriever
 
+    def buildit = new LibraryConfiguration("buildit",
+                              new SCMSourceRetriever(
+                                      new GitSCMSource(
+                                              "git", "https://github.com/buildit/jenkins-pipeline-libraries.git",
+                                              null, "*", null, true)))
+    buildit.defaultVersion = 'master'
+    GlobalLibraries.get().setLibraries([buildit])
 Persistence:
   Enabled: true
   StorageClass:
