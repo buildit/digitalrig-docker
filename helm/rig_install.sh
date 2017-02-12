@@ -25,8 +25,6 @@ helm delete --purge openvpn
 helm install ../../charts/digitalrig/openvpn-k8s --namespace default --name openvpn -f ./vars/openvpn.yaml
 
 echo "OpenVPN client configuration"
-minikube service -n default --format "{{.IP}}:{{.Port}}" openvpn-openvpn
+minikube service -n default --format "vpn_url_is__{{.IP}}:{{.Port}}" openvpn-openvpn
 
-minikube service -n kube-system  --format "http://traefik.kube.local:{{.Port}}" traefik-int-traefik
-# cleanup helm delete --purge `helm ls -q --all`
 

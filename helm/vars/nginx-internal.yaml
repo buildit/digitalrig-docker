@@ -6,7 +6,8 @@ nginx:
     pullPolicy: IfNotPresent
   service:
     type: NodePort
-    nodePort: 32123
+    # need to match server port (todo: raise issue with nginx-ingress to extract this information from nginx service definition)
+    nodePort: 80
   monitoring: true
   resources:
     limits:
