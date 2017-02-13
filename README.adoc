@@ -197,6 +197,7 @@ podTemplate(label: 'nodeapp',
 
 == Next steps
 
+* Read about link:security.adoc[security perimiter]
 * Install https://github.com/buildit/heimdall/tree/master/k8s[Heimdall] to enable access control for other components
 * Build some applications
 ** https://github.com/buildit/Eolas/tree/master/k8s[Eolas]

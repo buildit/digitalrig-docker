@@ -1,0 +1,50 @@
+== Access control (aka Security perimiter)
+
+Rig uses nginx as an ingress controller.
+https://github.com/kubernetes/ingress/tree/master/controllers/nginx[Nginx-ingress-controller] has support for
+http://nginx.org/en/docs/http/ngx_http_auth_request_module.html[auth_request] module.
+
+This module allows to perform session cookie or token check before letting the request hit the backend service
+
+=== Session cookie-based scenario
+
+. Application logs into security perimeter using form-based authentication
+. Access control service sets cookie on top-level domain
+. All subsequent HTTP requests use this cookie
+.. nginx-ingress-controller intercepts the request and performs "validate" request to access control service
+.. In case of valid user session access control service returns user information
+.. After successful authentication ingress controller enriches request with user information and forwards it to the corresponding backend service
+
+
+=== Session cookie-based gotchas
+
+* Application needs to share same top-level domain with authentication service
+* Session cookie must be renewed or have long enough TTL
+
+
+== How to enable cookie-based access control
+
+Configuration is required in application ingress object:
+
+. Set annotation `ingress.kubernetes.io/auth-url` to the URL of access control service
+. Set annotation `ingress.kubernetes.io/auth-response-headers` to comma-separated list of user headers to be passed from access control service (i.e. `X-User`)
+. Optionally add annotation `ingress.kubernetes.io/enable-cors: true` to enable "wide-open" CORS (in case other client-side applications should use it)
+
+Configure application to use user information headers (i.e. grant write access to authenticated users).
+
+== Heimdall as access control service
+
+*Login call*
+
+.  POST
+.  /auth/[strategy]
+. Response: JSON-encoded user information
+
+* Validate call
+
+. GET
+. /valid[?unauthCode=XXX]
+.. `unauthCode` may be used to configure response code in case of not authenticated user (may be useful for optional authentication)
+. Response
+.. Code 200 + user info header `X-User` for successful session check
+.. Code `unauthCode` (default is 403) if no valid session cookie is present
