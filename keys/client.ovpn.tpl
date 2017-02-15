@@ -4,6 +4,7 @@ proto tcp
 
 remote {{URL}} {{PORT}}
 
+mssfix 1400
 resolv-retry 30
 nobind
 persist-key
