@@ -1,5 +1,7 @@
-kubernetes:0.10
-docker-workflow:1.9.1
-workflow-aggregator:2.4
+workflow-durable-task-step:2.8
+kubernetes:0.11
+docker-workflow:1.10
+workflow-aggregator:2.5
 credentials-binding:1.10
-git:3.0.1
+git:3.0.5
+job-dsl:1.58
