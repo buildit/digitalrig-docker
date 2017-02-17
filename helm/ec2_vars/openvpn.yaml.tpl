@@ -28,6 +28,13 @@ openvpn:
       # todo: add it into openvpn image
       value: |-
         push "route 172.20.0.0 255.255.0.0"
+resources:
+  limits:
+    cpu: 1000m
+    memory: 198Mi
+  requests:
+    cpu: 200m
+    memory: 128Mi
 k8s:
   network: 100.0.0.0
   subnet: 255.0.0.0
