@@ -10,7 +10,7 @@ Master:
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     def region = 'us-east-1'
 
-    def params = [CLOUD: 'ec2', REGION: region, REGISTRY: "006393696278.dkr.ecr.${region}.amazonaws.com"]
+    def params = [CLOUD: 'ec2', REGION: region, REGISTRY: "006393696278.dkr.ecr.${region}.amazonaws.com" as String]
     def nodeProps = jenkins.model.Jenkins.getInstance().getGlobalNodeProperties()
     def envVars = nodeProps.get(hudson.slaves.EnvironmentVariablesNodeProperty)
     if (envVars == null) {
@@ -18,7 +18,6 @@ Master:
       nodeProps.add(envVars)
     }
     envVars.envVars << params
-    }
   - |
     // register pipeline library
     import jenkins.plugins.git.GitSCMSource
@@ -42,7 +41,7 @@ Master:
     job('_create project') {
       	parameters {
             stringParam('proj', '', 'proj name')
-            stringParam('gitUrl', '', 'proj name')
+            stringParam('gitUrl', 'https://github.com/buildit/', 'proj name')
             stringParam('branchToBuild', 'master', 'branch(es) to build')
             stringParam('stagingPipeline', 'k8s/pipelines/staging.groovy', 'staging pipeline defition path')
             stringParam('prodPipeline', 'k8s/pipelines/prod.groovy', 'prod pipeline defition path')
@@ -62,7 +61,7 @@ Master:
     new DslScriptLoader(jobManagement).runScript(seedJob)
 Persistence:
   Enabled: true
-  StorageClass: generic
+  StorageClass:
   AccessMode: ReadWriteOnce
   Size: 8Gi
 

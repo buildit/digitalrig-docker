@@ -41,7 +41,7 @@ Master:
     job('_create project') {
       	parameters {
             stringParam('proj', '', 'proj name')
-            stringParam('gitUrl', '', 'proj name')
+            stringParam('gitUrl', '/var/projects/', 'proj name')
             stringParam('branchToBuild', 'master', 'branch(es) to build')
             stringParam('stagingPipeline', 'k8s/pipelines/staging.groovy', 'staging pipeline defition path')
             stringParam('prodPipeline', 'k8s/pipelines/prod.groovy', 'prod pipeline defition path')
