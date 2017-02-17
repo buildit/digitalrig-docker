@@ -10,7 +10,7 @@ Master:
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     def hostProjPath = '/Users/romansafronov/dev/projects'
 
-    def params = [CLOUD: 'local', REGION: '', REGISTRY: 'builditdigital', HOST_PROJECT_PATH: hostProjPath]
+    def params = [CLOUD: 'local', REGION: '', REGISTRY: 'builditdigital', HOST_PROJECT_PATH: hostProjPath, INT_DOMAIN: 'kube.local']
     def nodeProps = jenkins.model.Jenkins.getInstance().getGlobalNodeProperties()
     def envVars = nodeProps.get(hudson.slaves.EnvironmentVariablesNodeProperty)
     if (envVars == null) {
