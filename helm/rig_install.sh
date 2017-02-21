@@ -1,3 +1,6 @@
+# Install dashboard (dashboard itself is bundled with minikube)
+kubectl apply -f ./dashboard/ingress.yaml
+
 # Install tiller
 helm init
 kubectl rollout status deployment/tiller-deploy -n kube-system
@@ -26,5 +29,3 @@ helm install ../../charts/digitalrig/openvpn-k8s --namespace default --name open
 
 echo "OpenVPN client configuration"
 minikube service -n default --format "vpn_url_is__{{.IP}}:{{.Port}}" openvpn-openvpn
-
-

@@ -66,6 +66,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 
 == Usage on Minikube
 
+. K8S console is available at http://dashboard.kube.local
 . Jenkins is available on http://jenkins.kube.local
 .. There is a seed job `_create_project` for applications supporting standard package layout
 . NGINX Internal web console is available on http://nginx.kube.local:NNNNN (where NNNNN is the node port `monitoring` of `nginx-int`)
@@ -78,6 +79,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 . Public NGINX web console is available on http://nginx.apps.{{public.domain}}
 . To access internal apps you need to login into VPN first
 .. Jenkins is available on http://jenkins.riglet
+.. K8S console is available at http://dashboard.riglet
 .. Internal NGINX web console is available on http://nginx-int-nginx-lego-monitoring.default.svc.cluster.local:18080/nginx_status/
 
 == Principles

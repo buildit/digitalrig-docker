@@ -1,3 +1,6 @@
+# Install dashboard
+kubectl apply -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml -f ./dashboard/ec2_ingress.yaml
+
 # Install tiller
 helm init
 kubectl rollout status deployment/tiller-deploy -n kube-system
