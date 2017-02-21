@@ -1,5 +1,9 @@
-# Install dashboard
-kubectl apply -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml -f ./dashboard/ec2_ingress.yaml
+# Install dashboard + ingress record
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml -f ./ec2/dashboard_ingress.yaml
+
+# Install heapster monitoring (see https://github.com/kubernetes/kops/blob/master/docs/addons.md)
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/release-1.2/deploy/kube-config/standalone/heapster-service.yaml \
+              -f https://raw.githubusercontent.com/kubernetes/heapster/release-1.2/deploy/kube-config/standalone/heapster-controller.yaml
 
 # Install tiller
 helm init

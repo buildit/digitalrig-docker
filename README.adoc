@@ -30,7 +30,7 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 . Open terminal and go to the directory with copy of this repo
 . Generate VPN keys (run `keys/generate_keys.sh` and use output to create client VPN configuration and populate `openvpn.yaml` by creating a copy of `openvpn.yaml.tpl`)
 . Configure chart parameters (do not forget to create configuration from tpl files!)
-.. `helm/vars/` for Minikube
+.. `helm/local_vars/` for Minikube
 .. `helm/ec2_vars` for EC2
 . Execute commands to install RIG components
 .. ensure working directory is `helm`
