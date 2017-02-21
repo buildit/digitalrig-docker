@@ -1,5 +1,5 @@
 # Install dashboard (dashboard itself is bundled with minikube)
-kubectl apply -f ./local/dashboard_ingress.yaml
+kubectl apply -f ./local/dashboard-ingress.yaml
 
 # Install heapster monitoring (support local service definition to exclude `kubernetes.io/cluster-service` annotation)
 kubectl apply -f ./local/heapster-service.yaml \

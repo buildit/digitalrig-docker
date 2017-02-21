@@ -80,6 +80,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 . To access internal apps you need to login into VPN first
 .. Jenkins is available on http://jenkins.riglet
 .. K8S console is available at http://dashboard.riglet
+.. Kibana is available at http://kibana.riglet
 .. Internal NGINX web console is available on http://nginx-int-nginx-lego-monitoring.default.svc.cluster.local:18080/nginx_status/
 
 == Principles

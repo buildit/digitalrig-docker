@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: kube-system
+  name: kibana-logging
+spec:
+  rules:
+  - host: kibana.riglet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kibana-logging
+          servicePort: 80

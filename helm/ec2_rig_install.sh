@@ -1,9 +1,12 @@
 # Install dashboard + ingress record
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml -f ./ec2/dashboard_ingress.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml -f ./ec2/dashboard-ingress.yaml
 
 # Install heapster monitoring (see https://github.com/kubernetes/kops/blob/master/docs/addons.md)
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/release-1.2/deploy/kube-config/standalone/heapster-service.yaml \
               -f https://raw.githubusercontent.com/kubernetes/heapster/release-1.2/deploy/kube-config/standalone/heapster-controller.yaml
+
+# Install log aggregation (need to track https://github.com/kubernetes/kops/pull/1305, kops should add this feature shortly)
+kubectl apply -f ./ec2/fluentd-elasticsearch/
 
 # Install tiller
 helm init
