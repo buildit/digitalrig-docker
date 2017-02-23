@@ -26,7 +26,7 @@ openvpn:
     rawOpts:
       # this magic is needed to add host VPC network
       # todo: add it into openvpn image
-      # 'duplicate-cn' is neeed to be able to use same client key
+      # 'duplicate-cn' is needed to be able to use same client key
       value: |-
         push "route 172.20.0.0 255.255.0.0"\nduplicate-cn
 resources:
