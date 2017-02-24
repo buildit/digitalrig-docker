@@ -25,8 +25,12 @@ SAMBA_OPTIONS=${SAMBA_OPTIONS:-}
 
 [ -n "$SAMBA_HOST_IP" ] && SAMBA_OPTIONS="$SAMBA_OPTIONS --host-ip=$SAMBA_HOST_IP"
 
+# Calculate DNS
+[ -z "$SAMBA_DNS_FORWARDER" ] && \
+    SAMBA_DNS_FORWARDER=`cat /etc/resolv.conf | grep nameserver | head -n 1 | awk '{print $2}'`
+
 # Fix nameserver
-echo -e "search ${SAMBA_REALM}\nnameserver 127.0.0.1" > /etc/resolv.conf
+echo "search ${SAMBA_REALM}\nnameserver 127.0.0.1" > /etc/resolv.conf
 
 # Provision domain
 rm -f /etc/samba/smb.conf
@@ -37,8 +41,9 @@ samba-tool domain provision \
     --adminpass=${SAMBA_PASSWORD} \
     --server-role=dc \
     --dns-backend=SAMBA_INTERNAL \
-    $SAMBA_OPTIONS  
-    #--option="bind interfaces only"=yes
+    $SAMBA_OPTIONS \
+    --option="allow dns updates"=disabled
+    #--option="log level"=5
 
 # Disable strict TLS requirement
 [ -n "$SAMBA_NO_TLS" ] && echo "Disabling strict TLS requirement" && sed -i 's/\[global\]/[global]\n\tldap server require strong auth=no/' /etc/samba/smb.conf
@@ -47,8 +52,7 @@ samba-tool domain provision \
 mv /etc/samba/smb.conf /var/lib/samba/private/smb.conf
 
 # Update dns-forwarder if required
-[ -n "$SAMBA_DNS_FORWARDER" ] \
-    && sed -i "s/dns forwarder = .*/dns forwarder = $SAMBA_DNS_FORWARDER/" /var/lib/samba/private/smb.conf
+sed -i "s/dns forwarder = .*/dns forwarder = $SAMBA_DNS_FORWARDER/" /var/lib/samba/private/smb.conf
 
 # Mark samba as setup
 touch /var/lib/samba/.setup
