@@ -8,3 +8,19 @@
 . Adjust IAM policy to authenticate in ECR
 .. Need to add `"ecr:DescribeImages", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload", "ecr:PutImage"`
 to allow docker image push from nodes
+... Perform `kops edit cluster ...` and append following code (See https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md for more info).
+
+```
+  additionalPolicies:
+    node: |
+      [
+        {
+          "Effect": "Allow",
+          "Action": [ "ecr:DescribeImages", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload", "ecr:PutImage" ],
+          "Resource": [
+            "*"
+          ]
+        }
+      ]
+```
+. Set proper size (at least 50g) of EBS storage by adding `spec.rootVolumeSize: 50` to nodes group  (see https://github.com/kubernetes/kops/issues/1929)
