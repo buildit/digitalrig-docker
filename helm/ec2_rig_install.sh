@@ -31,4 +31,8 @@ helm install ../../charts/stable/nginx-lego --name nginx-pub --namespace public 
 helm delete --purge jenkins
 helm install ../../charts/stable/jenkins --namespace default --name jenkins -f ./ec2_vars/jenkins.yaml
 
+# AD DC local controller (optional)
+helm delete --purge ad-dc
+helm install ../../charts/digitalrig/samba-ad-dc/ -n ad-dc -f ./ec2_vars/ad-dc.yaml
+
 # cleanup helm delete --purge `helm ls -q --all`
