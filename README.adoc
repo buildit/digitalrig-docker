@@ -40,7 +40,8 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 . Create name records for static resources
 .. On EC2
 ... create vpn.{{public.domain}} CNAME (ELB DNS name is shown via `kubectl get service openvpn-openvpn -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'`)
-... create internal CNAME *.riglet pointing to nginx-int ELB (ELB DNS name is shown via `kubectl get service nginx-int-nginx-lego -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'`))
+... create private hosted zone "riglet" and associate it with your K8S VPC
+... in just created hosted zone: create internal CNAME *.riglet pointing to nginx-int ELB (ELB DNS name is shown via `kubectl get service nginx-int-nginx-lego -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'`))
 ... create public CNAME *.apps.{{public.domain}} pointing to nginx-pub ELB
 .. On Minikube
 ... https://gist.github.com/eloypnd/5efc3b590e7c738630fdcf0c10b68072[install dnsmasq] and configure resolver for `.local` domain + wildcard DNS record pointing to `minikube ip` output
