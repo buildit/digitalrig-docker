@@ -58,7 +58,7 @@ you need an active AD account to be used by VPN-LDAP integration.
 To solve it you need to create LDAP user record for VPN user (name/pass should match with `[local|ec2]_vars/openvpn.yaml`):
 
 * Install https://github.com/electroma/go-ad-man[go-ad-man]
-* Forward ad-man UI to your machine `kubectl port-forward [ad-man-pod] 6111:6111`
+* Forward ad-man UI to your machine `kubectl port-forward [ad-man-pod] 6111:6111` (once you're on VPN - go-ad-man will be available on `ad-man.riglet`)
 * Login to http://localhost:6111 and create VPN user account
 
 After that you may create other user accounts and try to connect to VPN.
