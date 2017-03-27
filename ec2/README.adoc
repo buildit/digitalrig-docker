@@ -2,6 +2,7 @@
 
 . Prerequisites for KOPS (S3 and public hosted zone)
 .. In case of new region you may need to create a new S3 bucket for kops configuration (see tf/prereqs.tf)
+.. Create *distinct public* Route53 zone under one of our domains (i.e. `riglet.io`)
 .. *Important*: there should be NS delegation record in parent Route53 record (see https://github.com/kubernetes/kops/issues/859#issuecomment-261697614)
 . Deploy k8s cluster using kops (see kops.sh)
 . Create internal zone ".riglet" in k8s VPC

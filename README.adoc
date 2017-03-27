@@ -46,8 +46,9 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 .. EC2:  `ec2_rig_install.sh`
 . Create name records for static resources
 .. On EC2
-... create vpn.{{public.domain}} CNAME
-... create internal CNAME *.riglet pointing to nginx-int ELB
+... create vpn.{{public.domain}} CNAME (ELB DNS name is shown via `kubectl get service openvpn-openvpn -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'`)
+... create private hosted zone "riglet" and associate it with your K8S VPC
+... in just created hosted zone: create internal CNAME *.riglet pointing to nginx-int ELB (ELB DNS name is shown via `kubectl get service nginx-int-nginx-lego -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'`))
 ... create public CNAME *.apps.{{public.domain}} pointing to nginx-pub ELB
 .. On Minikube
 ... Quickest and simplest is to create an explicit host-record to make name-based routing work
@@ -73,7 +74,7 @@ you need an active AD account to be used by VPN-LDAP integration.
 To solve it you need to create LDAP user record for VPN user (name/pass should match with `[local|ec2]_vars/openvpn.yaml`):
 
 * Install https://github.com/electroma/go-ad-man[go-ad-man]
-* Forward ad-man UI to your machine `kubectl port-forward [ad-man-pod] 6111:6111`
+* Forward ad-man UI to your machine `kubectl port-forward [ad-man-pod] 6111:6111` (once you're on VPN - go-ad-man will be available on `ad-man.riglet`)
 * Login to http://localhost:6111 and create VPN user account
 
 After that you may create other user accounts and try to connect to VPN.

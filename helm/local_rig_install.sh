@@ -1,3 +1,6 @@
+# Uncomment to enable optional components (like openvpn and public elb)
+#extended=true
+
 # Install dashboard (dashboard itself is bundled with minikube)
 kubectl apply -f ./local/dashboard-ingress.yaml
 
@@ -15,7 +18,7 @@ helm install ../../charts/stable/nginx-lego --name nginx-int -f ./local_vars/ngi
 
 # public ingress controller
 helm delete --purge nginx-pub
-helm install ../../charts/stable/nginx-lego --name nginx-pub --namespace public -f ./local_vars/nginx-public.yaml
+if [ $extended ]; then helm install ../../charts/stable/nginx-lego --name nginx-pub --namespace public -f ./local_vars/nginx-public.yaml; fi
 
 # to make jenkins data visible on host: minikube ssh >> sudo ln -s /Users/romansafronov/dev/tmp/pv /tmp/hostpath_pv
 
@@ -29,7 +32,9 @@ helm install ../../charts/digitalrig/samba-ad-dc/ -n ad-dc -f ./local_vars/ad-dc
 
 #openvpn
 helm delete --purge openvpn
-helm install ../../charts/digitalrig/openvpn-k8s --namespace default --name openvpn -f ./local_vars/openvpn.yaml
+if [ $extended ]; then
+    helm install ../../charts/digitalrig/openvpn-k8s --namespace default --name openvpn -f ./local_vars/openvpn.yaml
 
-echo "OpenVPN client configuration"
-minikube service -n default --format "vpn_url_is__{{.IP}}:{{.Port}}" openvpn-openvpn
+    echo "OpenVPN client configuration"
+    minikube service -n default --format "vpn_url_is__{{.IP}}:{{.Port}}" openvpn-openvpn
+fi
