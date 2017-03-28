@@ -28,15 +28,22 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 
 . Make sure you're connected to the cluster: `kubectl get nodes` should return list of nodes and masters
 . Open terminal and go to the directory with copy of this repo
-. Generate VPN keys (run `keys/generate_keys.sh` and use output to create client VPN configuration and populate `openvpn.yaml` by creating a copy of `openvpn.yaml.tpl`)
-. Configure chart parameters (do not forget to create configuration from tpl files!)
-.. `helm/local_vars/` for Minikube
-.. `helm/ec2_vars` for EC2
-. Execute commands to install RIG components
+. Generate VPN keys (optional for minikube/local)
+.. run `keys/generate_keys.sh`
+.. configure OpenVpn
+... copy `openvpn.yaml.tpl` to `openvpn.yaml` and open it in your editor of choice.
+... use output from `generate_keys` script  to fill in the `openvpn.dhPem` and `openvpn.certsP12` values
++
+(manually replace the `{{...}}` expressions with the appropriate bits of text from the output).
+... fill `openvpn.ldapPass` with the password found in `ad-dc.yaml`.
+. Configure chart parameters found in `helm/local_vars/` (local) or `helm/ec2_vars` (EC2)
+.. `jenkins.yaml`:  edit filesystem paths and/or AWS regions, etc. to match your environment/requirements.
+.. Others?
+. Run appropriate script to install RIG components.  *Important*: make sure you're using correct cluster (`kubectl config get-contexts`)!
 .. ensure working directory is `helm`
-.. from `rig_install.sh` for Minikube
-.. from `ec2_rig_install.sh` for EC2
-.. *Important*: make sure you're using correct cluster (`kubectl config get-contexts`)!
+.. Minikube/local: `local_rig_install.sh`.
++
+.. EC2:  `ec2_rig_install.sh`
 . Create name records for static resources
 .. On EC2
 ... create vpn.{{public.domain}} CNAME (ELB DNS name is shown via `kubectl get service openvpn-openvpn -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'`)
@@ -44,13 +51,22 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 ... in just created hosted zone: create internal CNAME *.riglet pointing to nginx-int ELB (ELB DNS name is shown via `kubectl get service nginx-int-nginx-lego -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'`))
 ... create public CNAME *.apps.{{public.domain}} pointing to nginx-pub ELB
 .. On Minikube
-... https://gist.github.com/eloypnd/5efc3b590e7c738630fdcf0c10b68072[install dnsmasq] and configure resolver for `.local` domain + wildcard DNS record pointing to `minikube ip` output
-... More lightweight alternative is to add explicit host-record to make name-based routing work
+... Quickest and simplest is to create an explicit host-record to make name-based routing work
++
 ----
-echo "`minikube ip` nginx.kube.local jenkins.kube.local" >> /etc/hosts`
+echo "`minikube ip` nginx.kube.local jenkins.kube.local dashboard.kube.local" >> /etc/hosts
 ----
++
+or ...
++
+----
+sudo -- sh -c -e "echo '$(minikube ip) nginx.kube.local jenkins.kube.local dashboard.kube.local' >> /etc/hosts"
+----
+... Alternatively, https://gist.github.com/eloypnd/5efc3b590e7c738630fdcf0c10b68072[install dnsmasq] and configure resolver for `.local` domain + wildcard DNS record pointing to `minikube ip` output
 
 == User management
+
+*Note:*  These instructions are only of immediate interest if you're running on EC2.  VPN is optional under minikube (local).
 
 In case you have enabled VPN-LDAP authentication there may be "chicken and egg" problem after installation:
 you need an active AD account to be used by VPN-LDAP integration.
@@ -70,13 +86,17 @@ After that you may create other user accounts and try to connect to VPN.
 .. `minikube ssh` and check `sudo udhcp` - it should give you the understanding of b2d dns setup
 .. Make sure corresponding route is in place
 .. In case you want to make changes to DNS configuration most likely you gonna need to restart kube-dns
++
 ----
 kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=kube-dns" --template "{{ range .items }}{{.metadata.name}} {{end}}"`
 ----
++
 . You may want to give minikube more resources (i.e. `minikube start --cpus 2 --memory 4096`)
 . Make sure you're running master or version 0.17+ to have real PVs (see https://github.com/kubernetes/minikube/issues/1103)
 .. In case you're running master you need to build master iso image (see https://github.com/tvon/minikube/commit/df08ad854dacbdc47ffa3012a027a632dbf325fd)
    and configure start ISO `minikube start --cpus 2 --memory 4096 --iso-url=file:///$GOPATH/k8s.io/minikube/out/buildroot/output/images/rootfs.iso9660`
+. If you get an error on ngnix-int, revisit the prerequisites:  minikube needs to allow "low ports".
+
 
 == Usage on Minikube
 

@@ -62,7 +62,7 @@ echo "
 ===============================================
 Client VPN file template is at $TMP/client.ovpn
 ===============================================
-Please set following in helm/[ec2_vars|vars]/openvpn.yaml (created from tpl)
+Please set following in helm/[ec2_vars|local_vars]/openvpn.yaml (created from tpl)
 ===============================================
 === openvpn.dhPem:"
 echo `cat "$TMP/keys/dh.pem" | base64`
