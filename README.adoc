@@ -42,6 +42,8 @@ See link:ec2/README.adoc[EC2 cluster configuration steps]
 . Run appropriate script to install RIG components.  *Important*: make sure you're using correct cluster (`kubectl config get-contexts`)!
 .. ensure working directory is `helm`
 .. Minikube/local: `local_rig_install.sh`.
+... If you see `Error: could not find a ready tiller pod` just rerun the script.  Appears to be a timing issue
+... If this is your first time running, ignore `Error: release not found` as that is trying to clean up something that doesn't yet exist
 +
 .. EC2:  `ec2_rig_install.sh`
 . Create name records for static resources
