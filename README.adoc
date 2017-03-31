@@ -94,7 +94,7 @@ kubectl delete pod -n kube-system `kubectl get pods -n kube-system -l "k8s-app=k
 ----
 +
 . You may want to give minikube more resources (i.e. `minikube start --cpus 2 --memory 4096`)
-. Make sure you're running master or version 0.17+ to have real PVs (see https://github.com/kubernetes/minikube/issues/1103)
+. Make sure you're running master or version 0.17+ to have real Persistent Volumes (see https://github.com/kubernetes/minikube/issues/1103)
 .. In case you're running master you need to build master iso image (see https://github.com/tvon/minikube/commit/df08ad854dacbdc47ffa3012a027a632dbf325fd)
    and configure start ISO `minikube start --cpus 2 --memory 4096 --iso-url=file:///$GOPATH/k8s.io/minikube/out/buildroot/output/images/rootfs.iso9660`
 . If you get an error on ngnix-int, revisit the prerequisites:  minikube needs to allow "low ports".
