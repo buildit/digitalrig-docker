@@ -8,9 +8,10 @@
 *** `brew cask install minikube`
 ** As a workaround for https://github.com/kubernetes/minikube/issues/1056[#1056] start minikube using old image (`minikube start --iso-url https://storage.googleapis.com/minikube/minikube-0.7.iso`)
 *** should be fixed in 1.6.0+
-** Pass port range parameter to allow Minikube to use lower ports `minikube start --extra-config=apiserver.GenericServerRunOptions.ServiceNodePortRange=80-32000`
-** Note: From minikube v0.18.0+ the port range parameter is not anymore under GenericServcerRunOptions ( see: https://github.com/kubernetes/minikube/issues/1359 ), the command line should be
+** Pass port range parameter to allow Minikube to use lower ports
+*** From minikube v0.18.0+ port range parameter not anymore under GenericServerRunOptions ( see: https://github.com/kubernetes/minikube/issues/1359 ), the command line is
 `minikube start --extra-config=apiserver.ServiceNodePortRange=80-32000`
+*** before v0.18.0 command line is `minikube start --extra-config=apiserver.GenericServerRunOptions.ServiceNodePortRange=80-32000`
 * https://kubernetes.io/docs/user-guide/prereqs/[kubectl cli]
 ** `brew install kubectl`
 * https://github.com/kubernetes/helm[Helm] 2.x
