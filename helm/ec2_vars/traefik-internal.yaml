@@ -1,8 +1,0 @@
-serviceType: LoadBalancer
-serviceAnnotations:
-  service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
-gzip:
-  enabled: false
-dashboard:
-  enabled: true
-  domain: traefik.riglet
